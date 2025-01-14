@@ -326,18 +326,18 @@ def train():
                             if "/" in dataset_name:
                                 dataset_name = dataset_name.split("/")[-1]
                             ds_info = ds_infos_dict[dataset_name]
-                            image_infos.extend(
-                                g.api.image.get_list(
+                            for batched_names in sly.batched(image_names, 200):
+                                batch_infos = g.api.image.get_list(
                                     ds_info.id,
                                     filters=[
                                         {
                                             "field": "name",
                                             "operator": "in",
-                                            "value": image_names,
+                                            "value": batched_names,
                                         }
                                     ],
                                 )
-                            )
+                                image_infos.extend(batch_infos)
                         return image_infos
 
                     val_image_infos = get_image_infos_by_split(val_set)
